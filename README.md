@@ -39,6 +39,10 @@ langchain-groq
 python-dotenv
 langchain-google-genai
 ```
+Run command below to install these packages from txt file.
+```
+uv add -r requirement.txt
+```
 
 Make below commands to setup flask.
 ```
