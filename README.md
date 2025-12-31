@@ -8,6 +8,7 @@ Install via this command, mine is Linux system
 ```
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
+Restart terminal to take effect of this installation of uv package manager
 
 Go to your home directory or project directory
 ```
