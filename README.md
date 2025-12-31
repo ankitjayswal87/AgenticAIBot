@@ -3,6 +3,7 @@ Creating agents with langchain
 
 # Installation
 Follow link, https://docs.astral.sh/uv/getting-started/installation/
+
 Install via this command, mine is Linux system
 ```
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -44,3 +45,12 @@ uv add flask
 uv add flask_limiter
 ```
 
+Create .env file also in project folder.
+```
+vim .env
+```
+Add below content into .env file.
+```
+OPENAI_API_KEY=""
+GOOGLE_API_KEY=""
+```
