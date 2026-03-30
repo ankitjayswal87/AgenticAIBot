@@ -32,9 +32,13 @@ def verify_confirm_ticket(from_city:str,to_city:str,journey_date:str,seats:str)-
 def book_bus_ticket(from_city:str,to_city:str,journey_date:str,seats:str)->str:
     """Book bus ticket between given two cities"""
     print("JOURNEY_DATE:"+str(journey_date))
-    return f"Your {seats} tickets are booked from {from_city} to {to_city} on date {journey_date}, Thank you!"
+    print("FROM CITY:"+str(from_city))
+    print("TO CITY:"+str(to_city))
+    print("SEATS:"+str(seats))
+    #return f"Your {seats} tickets are booked from {from_city} to {to_city} on date {journey_date} ,, the payment link has been sent to your mobile number, just click on it to pay to confirm tickets, Thank you!"
+    return f"Your {seats} tickets from {from_city} to {to_city} on {journey_date} have been reserved. Please click the payment link sent to your mobile number, to complete the payment and confirm your booking. Thank you!"
 
-system_prompt="""You are a bus ticket booking agent. Just book ticket between two cities. 
+system_prompt="""You are a bus ticket booking agent. Be polite while speaking. Keep your answers short and easy to understand. Just book ticket between two cities. 
 Here required fields are from_city, to_city, journey_date and seats. First collect these information and confirm it with
 user via tool verify_confirm_ticket ,if user agrees then only book ticket"""
 
