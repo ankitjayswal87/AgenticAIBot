@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from langchain.agents import create_agent
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.agents.middleware import SummarizationMiddleware
 from langgraph.checkpoint.memory import InMemorySaver
 from flask import Flask, jsonify, request, send_file, redirect,has_request_context,make_response
 from flask_limiter import Limiter
@@ -42,8 +44,19 @@ system_prompt="""You are a bus ticket booking agent. Be polite while speaking. K
 Here required fields are from_city, to_city, journey_date and seats. First collect these information and confirm it with
 user via tool verify_confirm_ticket ,if user agrees then only book ticket"""
 
-agent = create_agent(model="gpt-4o-mini",tools=[verify_confirm_ticket,book_bus_ticket],system_prompt=system_prompt,checkpointer=InMemorySaver())
-
+agent = create_agent(
+    model="gpt-4o-mini",
+    tools=[verify_confirm_ticket,book_bus_ticket],
+    system_prompt=system_prompt,
+    checkpointer=InMemorySaver(),
+    middleware=[
+        SummarizationMiddleware(
+            model="gpt-4o-mini",
+            trigger=("messages",10),
+            keep=("messages",4)
+        )
+    ]
+    )
 
 @app.route('/agentic_ai/bus_booking',methods=['GET','POST'])
 def bus_booking_api():
@@ -61,7 +74,10 @@ def bus_booking_api():
         output = {"response": "work in progress"}
     elif llm_model=='openai':
         print('openai selected...')
-        response = agent.invoke({"messages":[{"role":"user","content":query}]},{"configurable": {"thread_id": thread_id}})
+        #response = agent.invoke({"messages":[{"role":"user","content":query}]},{"configurable": {"thread_id": thread_id}})
+        response = agent.invoke({"messages":[HumanMessage(content=query)]},{"configurable": {"thread_id": thread_id}})
+        #print(len(response['messages']))
+        #print(response['messages'])
         response = response['messages'][-1].content
         output = {"response": response}
 
