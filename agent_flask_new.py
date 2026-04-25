@@ -7,6 +7,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import Tool
 from langchain.tools import tool, ToolRuntime
 from langchain.agents.middleware import dynamic_prompt, ModelRequest, before_model, after_model, SummarizationMiddleware
+from langgraph.runtime import Runtime
 from dataclasses import dataclass
 from langgraph.checkpoint.memory import InMemorySaver
 from flask import Flask, jsonify, request, send_file, redirect,has_request_context,make_response
@@ -40,6 +41,18 @@ Here required fields are from_city, to_city, journey_date and seats. First colle
 user via tool verify_confirm_ticket ,if user agrees then only book ticket Address the user as {user_name}."""
     return system_prompt
 
+# Before model hook
+@before_model
+def log_before_model(state: AgentState, runtime: Runtime[Context]) -> dict | None:
+    print(f"Processing request for user: {runtime.context.user_name}")
+    return None
+
+# After model hook
+@after_model
+def log_after_model(state: AgentState, runtime: Runtime[Context]) -> dict | None:
+    print(f"Completed request for user: {runtime.context.user_name}")
+    return None
+
 #verify the ticket details and confirm with user
 @tool(return_direct=True)
 def verify_confirm_ticket(from_city:str,to_city:str,journey_date:str,seats:str,runtime: ToolRuntime)->str:
@@ -64,6 +77,8 @@ agent = create_agent(
     checkpointer=InMemorySaver(),
     middleware=[
         dynamic_system_prompt,
+        log_before_model,
+        log_after_model,
         SummarizationMiddleware(
             model="gpt-4o-mini",
             trigger=("messages",10),
