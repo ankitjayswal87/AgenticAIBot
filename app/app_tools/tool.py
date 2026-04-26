@@ -1,4 +1,9 @@
 from langchain.tools import tool, ToolRuntime
+from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
+
+embeddings = OpenAIEmbeddings()
+vector_data = FAISS.load_local("rag/vector_db/bus_booking_policy",embeddings,allow_dangerous_deserialization=True)
 
 #verify the ticket details and confirm with user
 @tool(return_direct=True)
@@ -22,3 +27,10 @@ def book_bus_ticket(from_city:str,to_city:str,journey_date:str,seats:str)->str:
     print("SEATS:"+str(seats))
     #return f"Your {seats} tickets are booked from {from_city} to {to_city} on date {journey_date} ,, the payment link has been sent to your mobile number, just click on it to pay to confirm tickets, Thank you!"
     return f"Your {seats} tickets from {from_city} to {to_city} on {journey_date} have been reserved. Please click the payment link sent to your mobile number, to complete the payment and confirm your booking. Thank you!"
+
+#search query here for general FAQs
+@tool
+def knowledge_base(query:str)->str:
+    """Search here for general questions regarding bus policy"""
+    docs = vector_data.similarity_search(query,k=2)
+    return docs

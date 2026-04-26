@@ -46,7 +46,7 @@ log_before_model = hook.log_before_model
 log_after_model = hook.log_after_model
 
 #get your tools for app
-tools = [tool.verify_confirm_ticket,tool.book_bus_ticket]
+tools = [tool.verify_confirm_ticket,tool.book_bus_ticket,tool.knowledge_base]
 
 #create your agent here
 agent = create_agent(
@@ -93,7 +93,6 @@ def bus_booking_api():
         response = response['messages'][-1].content
         output = {"response": response}
 
-    #output = {"response": "hello"}
     return jsonify(output)
 
 
