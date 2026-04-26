@@ -8,7 +8,7 @@ def verify_confirm_ticket(from_city:str,to_city:str,journey_date:str,seats:str,r
     user_id = runtime.state["user_id"]
     print("BOOKING STATUS:"+str(runtime.state["booking_status"]))
     if user_id=="test123":
-        return f"Okay, Ankit you are going to book total {seats} tickets from {from_city} to {to_city} on date {journey_date}, Please confirm to book it!"
+        return f"Okay, Prahi you are going to book total {seats} tickets from {from_city} to {to_city} on date {journey_date}, Please confirm to book it!"
     else:
         return f"Okay, you are going to book total {seats} tickets from {from_city} to {to_city} on date {journey_date}, Please confirm to book it!"
 

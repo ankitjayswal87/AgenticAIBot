@@ -21,6 +21,7 @@ from constants import constant
 from app_tools import tool
 from prompts import prompt
 from agent_states import agent_state
+from agent_contexts import agent_context
 
 os.environ["OPENAI_API_KEY"]=os.getenv("OPENAI_API_KEY")
 
@@ -30,19 +31,28 @@ limiter = Limiter(get_remote_address,app=app,default_limits=["1000 per day", "10
 #get your agent state_schema here
 state_schema = agent_state.CustomState
 
+#get your agent context_schema here
+context_schema = agent_context.Context
+
 #get your system prompt for app
 system_prompt=prompt.system_prompt
+
+#get your dynamic system prompt here
+dynamic_system_prompt = prompt.dynamic_system_prompt
 
 #get your tools for app
 tools = [tool.verify_confirm_ticket,tool.book_bus_ticket]
 
+#create your agent here
 agent = create_agent(
     model=constant.MODEL,
     tools=tools,
-    system_prompt=system_prompt,
+    #system_prompt=system_prompt,
     checkpointer=InMemorySaver(),
     state_schema=state_schema,
+    context_schema=context_schema,
     middleware=[
+        dynamic_system_prompt,
         SummarizationMiddleware(
             model=constant.MODEL,
             trigger=("messages",constant.TRIGGER_MESSAGE_COUNT),
@@ -68,7 +78,8 @@ def bus_booking_api():
         #response = agent.invoke({"messages":[{"role":"user","content":query}]},{"configurable": {"thread_id": thread_id}})
         response = agent.invoke(
             {"messages":[HumanMessage(content=query)],"user_id":"test123","booking_status":"pending"},
-            {"configurable": {"thread_id": thread_id}}
+            {"configurable": {"thread_id": thread_id}},
+            context=context_schema(user_name="Prahi Jayswal")
         )
         #print(len(response['messages']))
         #print(response['messages'])
