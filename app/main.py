@@ -22,6 +22,7 @@ from app_tools import tool
 from prompts import prompt
 from agent_states import agent_state
 from agent_contexts import agent_context
+from hooks import hook
 
 os.environ["OPENAI_API_KEY"]=os.getenv("OPENAI_API_KEY")
 
@@ -40,6 +41,10 @@ system_prompt=prompt.system_prompt
 #get your dynamic system prompt here
 dynamic_system_prompt = prompt.dynamic_system_prompt
 
+#get your hooks here
+log_before_model = hook.log_before_model
+log_after_model = hook.log_after_model
+
 #get your tools for app
 tools = [tool.verify_confirm_ticket,tool.book_bus_ticket]
 
@@ -53,6 +58,8 @@ agent = create_agent(
     context_schema=context_schema,
     middleware=[
         dynamic_system_prompt,
+        log_before_model,
+        log_after_model,
         SummarizationMiddleware(
             model=constant.MODEL,
             trigger=("messages",constant.TRIGGER_MESSAGE_COUNT),
