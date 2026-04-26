@@ -2,8 +2,10 @@ from langchain.tools import tool, ToolRuntime
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 
+from constants import constant
+
 embeddings = OpenAIEmbeddings()
-vector_data = FAISS.load_local("rag/vector_db/bus_booking_policy",embeddings,allow_dangerous_deserialization=True)
+vector_data = FAISS.load_local(constant.VECTOR_DB,embeddings,allow_dangerous_deserialization=True)
 
 #verify the ticket details and confirm with user
 @tool(return_direct=True)
