@@ -9,7 +9,7 @@ from langchain_core.tools import Tool
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain.agents.middleware import dynamic_prompt, ModelRequest, before_model, after_model, SummarizationMiddleware
-from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.store.memory import InMemoryStore
 
 #flask imports
 from flask import Flask, jsonify, request, send_file, redirect,has_request_context,make_response
@@ -48,13 +48,16 @@ log_after_model = hook.log_after_model
 #get your tools for app
 tools = [tool.verify_confirm_ticket,tool.book_bus_ticket,tool.knowledge_base]
 
+store = InMemoryStore()
+
 #create your agent here
 agent = create_agent(
     model=constant.MODEL,
     tools=tools,
+    store=store,
     #system_prompt=system_prompt,
     checkpointer=InMemorySaver(),
-    state_schema=state_schema,
+    #state_schema=state_schema,
     context_schema=context_schema,
     middleware=[
         dynamic_system_prompt,
@@ -73,6 +76,7 @@ def bus_booking_api():
 
     some_json = request.get_json()
     thread_id = some_json['thread_id']
+    user_id = some_json['user_id']
     query = some_json['query']
     llm_model = some_json['model']
 
@@ -84,8 +88,9 @@ def bus_booking_api():
         print('openai selected...')
         #response = agent.invoke({"messages":[{"role":"user","content":query}]},{"configurable": {"thread_id": thread_id}})
         response = agent.invoke(
-            {"messages":[HumanMessage(content=query)],"user_id":"test123","booking_status":"pending"},
-            {"configurable": {"thread_id": thread_id}},
+            #{"messages":[HumanMessage(content=query)],"user_id":user_id,"booking_status":"pending"},
+            {"messages":[HumanMessage(content=query)]},
+            {"configurable": {"thread_id": thread_id,"user_id":user_id,"user_name":"Prahi Jayswal"}},
             context=context_schema(user_name="Prahi Jayswal")
         )
         #print(len(response['messages']))
