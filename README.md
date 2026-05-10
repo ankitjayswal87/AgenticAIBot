@@ -21,36 +21,10 @@ git clone https://github.com/ankitjayswal87/AgenticAIBot.git
 cd AgenticAIBot
 ```
 ```
-uv init
-```
-```
-uv venv
+uv sync
 ```
 ```
 source .venv/bin/activate
-```
-
-Now. create requirement.tx file.
-```
-vim requirement.txt
-```
-
-Add below content into requirement.txt file.
-```
-langchain
-langchain_community
-langchain-openai
-langchain-groq
-python-dotenv
-langchain-google-genai
-flask
-flask_limiter
-faiss-cpu
-pymupdf
-```
-Run command below to install these packages from txt file.
-```
-uv add -r requirement.txt
 ```
 
 Export OpenAI API key
