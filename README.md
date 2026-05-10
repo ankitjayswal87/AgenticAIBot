@@ -12,50 +12,43 @@ Restart terminal to take effect of this installation of uv package manager
 
 Go to your home directory or project directory
 ```
-cd /home/ankit/agentic_ai
-```
-
-```
-uv init
+cd /home/ubuntu/
 ```
 ```
-uv venv
+git clone https://github.com/ankitjayswal87/AgenticAIBot.git
+```
+```
+cd AgenticAIBot
+```
+```
+uv sync
 ```
 ```
 source .venv/bin/activate
 ```
 
-Now. create requirement.tx file.
+Export OpenAI API key
 ```
-vim requirement.txt
-```
-
-Add below content into requirement.txt file.
-```
-langchain
-langchain_community
-langchain-openai
-langchain-groq
-python-dotenv
-langchain-google-genai
-```
-Run command below to install these packages from txt file.
-```
-uv add -r requirement.txt
+export OPENAI_API_KEY="sk-xxx"
 ```
 
-Make below commands to setup flask.
+Goto app folder and run main file as below
 ```
-uv add flask
-uv add flask_limiter
+cd app
+```
+```
+python3 main.py
+```
+Now, your AI agent is running and you can use it via below CURL requests:
+```
+curl -X POST 'http://localhost:5006/agentic_ai/bus_booking' --header 'Content-Type: application/json' --data-raw '{"thread_id":"call123abc","user_id":"test123","query":"Hello, I want to book 2 seats from Ahmedabad to Mumbai","model":"openai"}'
 ```
 
-Create .env file also in project folder.
+It will respond you something like:
 ```
-vim .env
+{
+  "response": "Sure, Prahi Jayswal! Could you please provide me with the journey date for your trip from Ahmedabad to Mumbai?"
+}
 ```
-Add below content into .env file.
-```
-OPENAI_API_KEY=""
-GOOGLE_API_KEY=""
-```
+
+Great, you successfully deployed Ticket booking AI Agent. You can now play with it and it will respond you accordingly. 
