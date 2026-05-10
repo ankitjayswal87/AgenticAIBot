@@ -4,3 +4,7 @@ langchain-openai
 langchain-groq
 python-dotenv
 langchain-google-genai
+flask
+flask_limiter
+faiss-cpu
+pymupdf

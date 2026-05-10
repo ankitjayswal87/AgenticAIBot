@@ -12,9 +12,14 @@ Restart terminal to take effect of this installation of uv package manager
 
 Go to your home directory or project directory
 ```
-cd /home/ankit/agentic_ai
+cd /home/ubuntu/
 ```
-
+```
+git clone https://github.com/ankitjayswal87/AgenticAIBot.git
+```
+```
+cd AgenticAIBot
+```
 ```
 uv init
 ```
@@ -38,24 +43,17 @@ langchain-openai
 langchain-groq
 python-dotenv
 langchain-google-genai
+flask
+flask_limiter
+faiss-cpu
+pymupdf
 ```
 Run command below to install these packages from txt file.
 ```
 uv add -r requirement.txt
 ```
 
-Make below commands to setup flask.
+Export OpenAI API key
 ```
-uv add flask
-uv add flask_limiter
-```
-
-Create .env file also in project folder.
-```
-vim .env
-```
-Add below content into .env file.
-```
-OPENAI_API_KEY=""
-GOOGLE_API_KEY=""
+export OPENAI_API_KEY="sk-xxx"
 ```
