@@ -51,4 +51,11 @@ It will respond you something like:
 }
 ```
 
+For, API testing agent to invoke use this curl request:
+```
+curl -X POST 'http://localhost:5006/agentic_ai/api_validation' --header 'Content-Type: application/json' --data-raw '{"thread_id":"test123","api_name":"/api/outbound_call","api_host":"127.0.0.1","request_id":"as34dfg","query":"test outbound_call","model":"openai"}'
+```
+
+This api testing curl request will take some time to respond as it runs deep agent in backend for long process.
+
 Great, you successfully deployed Ticket booking AI Agent. You can now play with it and it will respond you accordingly. 

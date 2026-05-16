@@ -1,0 +1,69 @@
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"request_id":"b2b2fe568f","success":"true"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"account_id is mandatory field","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"auth is mandatory field","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"invalid customer number, number should be of 10 digits in length","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"invalid OTP, blank OTP received","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"invalid announce template","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"please provide numeric value between 1 to 3","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"invalid callerid","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"invalid voice id","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"invalid volume value","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"invalid rate value","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"","language_code":"en-US","tts_engine_type":"neural"}
+Response: {"response":{"message":"invalid pitch value","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"","tts_engine_type":"neural"}
+Response: {"response":{"message":"invalid language code","success":"false"}}
+
+API Host: http://127.0.0.1/
+API Path: /api/outbound_call
+Payload: {"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":""}
+Response: {"response":{"message":"invalid tts engine type","success":"false"}}
