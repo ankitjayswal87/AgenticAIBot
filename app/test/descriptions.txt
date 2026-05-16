@@ -1,0 +1,5 @@
+curl --location 'http://127.0.0.1/api/outbound_call' \
+--header 'account: ACvjfnvjnfs' \
+--header 'auth: KV93GE50J9' \
+--header 'Content-Type: application/json' \
+--data '{"customer_number":"919979272423","otp":"1987","announce_template_id":"AN2222314c96","repeat":"1","caller_id":"15168148720","voice":"Joanna","volume":"soft","rate":"slow","pitch":"medium","language_code":"en-US","tts_engine_type":"neural"}'

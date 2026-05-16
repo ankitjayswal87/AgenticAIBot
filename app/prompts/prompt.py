@@ -179,7 +179,7 @@ def dynamic_system_prompt_api_validation(request: ModelRequest) -> str:
 
     Rules:
 
-    . Read `descriptions.txt` file first.
+    1. Read `descriptions.txt` file first.
     2. Extract available curl commands from the file.
     3. Select the appropriate curl request based on the user query.
     4. Execute API validation testing for all payload parameters.
@@ -193,9 +193,6 @@ def dynamic_system_prompt_api_validation(request: ModelRequest) -> str:
 
     Available API:
     POST {api_name}
-
-    Base CURL:
-    {base_curl}
 
     Validation Test Cases:
 
