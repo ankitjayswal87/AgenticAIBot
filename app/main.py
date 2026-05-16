@@ -11,6 +11,9 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langchain.agents.middleware import dynamic_prompt, ModelRequest, before_model, after_model, SummarizationMiddleware
 from langgraph.store.memory import InMemoryStore
 
+from deepagents import create_deep_agent
+from deepagents.backends import FilesystemBackend,LocalShellBackend
+
 #flask imports
 from flask import Flask, jsonify, request, send_file, redirect,has_request_context,make_response
 from flask_limiter import Limiter
@@ -34,12 +37,14 @@ state_schema = agent_state.CustomState
 
 #get your agent context_schema here
 context_schema = agent_context.Context
+context_schema_api_validation = agent_context.ContextAPIValidation
 
 #get your system prompt for app
 system_prompt=prompt.system_prompt
 
 #get your dynamic system prompt here
 dynamic_system_prompt = prompt.dynamic_system_prompt
+dynamic_system_prompt_api_validation = prompt.dynamic_system_prompt_api_validation
 
 #get your hooks here
 log_before_model = hook.log_before_model
@@ -71,6 +76,13 @@ agent = create_agent(
     ]
     )
 
+#create deep agent
+agent_api_validation = create_deep_agent(
+    model=constant.MODEL,
+    middleware=[dynamic_system_prompt_api_validation],
+    backend=LocalShellBackend(root_dir=os.getcwd()+constant.LOCAL_SHELL_BACKEND_PATH, virtual_mode=True)
+)
+
 @app.route('/agentic_ai/bus_booking',methods=['GET','POST'])
 def bus_booking_api():
 
@@ -95,6 +107,33 @@ def bus_booking_api():
         )
         #print(len(response['messages']))
         #print(response['messages'])
+        response = response['messages'][-1].content
+        output = {"response": response}
+
+    return jsonify(output)
+
+@app.route('/agentic_ai/api_validation',methods=['GET','POST'])
+def api_validation_api():
+
+    some_json = request.get_json()
+    thread_id = some_json['thread_id']
+    api_name = some_json['api_name']
+    api_host = some_json['api_host']
+    request_id = some_json['request_id'];
+    query = some_json['query']
+    llm_model = some_json['model']
+
+    if llm_model=='ollama':
+        print('ollama selected...')
+        # response = model_ollama.invoke(query)
+        output = {"response": "work in progress"}
+    elif llm_model=='openai':
+        print('openai selected...')
+        response = agent_api_validation.invoke(
+            {"messages":[HumanMessage(content=query)]},
+            {"configurable": {"thread_id": thread_id}},
+            context=context_schema_api_validation(api_host=api_host,api_name=api_name,request_id=request_id)
+        )
         response = response['messages'][-1].content
         output = {"response": response}
 
