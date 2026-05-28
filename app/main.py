@@ -11,7 +11,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langchain.agents.middleware import dynamic_prompt, ModelRequest, before_model, after_model, SummarizationMiddleware
 from langgraph.store.memory import InMemoryStore
 
-from deepagents import create_deep_agent
+from deepagents import create_deep_agent,FilesystemPermission
 from deepagents.backends import FilesystemBackend,LocalShellBackend
 
 #flask imports
@@ -83,6 +83,14 @@ agent_api_validation = create_deep_agent(
     backend=LocalShellBackend(root_dir=os.getcwd()+constant.LOCAL_SHELL_BACKEND_PATH, virtual_mode=True)
 )
 
+#create agent with skill - example only
+agent_with_skill_memory = create_deep_agent(
+    model=constant.MODEL,
+    memory=[constant.LOCAL_MEMORY_PATH],
+    skills=[constant.LOCAL_SKILL_PATH],
+    backend=FilesystemBackend(root_dir=os.getcwd(),virtual_mode=False),
+)
+
 @app.route('/agentic_ai/bus_booking',methods=['GET','POST'])
 def bus_booking_api():
 
@@ -133,6 +141,29 @@ def api_validation_api():
             {"messages":[HumanMessage(content=query)]},
             {"configurable": {"thread_id": thread_id}},
             context=context_schema_api_validation(api_host=api_host,api_name=api_name,request_id=request_id)
+        )
+        response = response['messages'][-1].content
+        output = {"response": response}
+
+    return jsonify(output)
+
+@app.route('/agentic_ai/agent_with_skill_memory',methods=['GET','POST'])
+def agent_with_skill_memory_api():
+
+    some_json = request.get_json()
+    thread_id = some_json['thread_id']
+    query = some_json['query']
+    llm_model = some_json['model']
+
+    if llm_model=='ollama':
+        print('ollama selected...')
+        # response = model_ollama.invoke(query)
+        output = {"response": "work in progress"}
+    elif llm_model=='openai':
+        print('openai selected...')
+        response = agent_with_skill_memory.invoke(
+            {"messages":[HumanMessage(content=query)]},
+            {"configurable": {"thread_id": thread_id}},
         )
         response = response['messages'][-1].content
         output = {"response": response}
