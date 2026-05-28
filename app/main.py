@@ -88,7 +88,7 @@ agent_with_skill_memory = create_deep_agent(
     model=constant.MODEL,
     memory=[constant.LOCAL_MEMORY_PATH],
     skills=[constant.LOCAL_SKILL_PATH],
-    backend=FilesystemBackend(root_dir=os.getcwd(),virtual_mode=False),
+    backend=FilesystemBackend(root_dir=os.getcwd(),virtual_mode=True),
 )
 
 @app.route('/agentic_ai/bus_booking',methods=['GET','POST'])
