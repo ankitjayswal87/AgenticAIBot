@@ -1,12 +1,12 @@
 import requests
+import os
+from constants import constant
 
 # Configuration
-WHATSAPP_SEND_MESSAGE_API_URL = "https://pingly.in/api/v1/messages"
-WHATSAPP_API_TOKEN = "pgly_live_O5G8CJwsJHT1rWhVJUqanKGMB7shM7xP"  # Replace with your actual token
-WHATSAPP_ACCOUNT_ID = "81f4985e-8c20-4a0c-94e9-1c5dfa211bb7"
+WHATSAPP_SEND_MESSAGE_API_URL = constant.WHATSAPP_SEND_MESSAGE_API_URL
+WHATSAPP_API_TOKEN = os.getenv("WHATSAPP_API_TOKEN")
 
-
-def send_whatsapp_message(to: str, text: str):
+def send_whatsapp_message(to: str, text: str, account_id: str):
     """
     Send a WhatsApp message via Pingly.
 
@@ -23,7 +23,7 @@ def send_whatsapp_message(to: str, text: str):
     }
 
     payload = {
-        "accountId": WHATSAPP_ACCOUNT_ID,
+        "accountId": account_id,
         "to": to,
         "text": text
     }

@@ -164,14 +164,14 @@ def pass_booking_api():
         #print('openai selected...')
         response = agent_pass_booking.invoke(
             {"messages":[HumanMessage(content=query)]},
-            {"configurable": {"thread_id": thread_id,"user_id":user_id,"user_name":contact_name,"phone":phone}},
+            {"configurable": {"thread_id": thread_id,"user_id":user_id,"user_name":contact_name,"phone":phone,"account_id":account_id}},
             context=context_schema(user_name=contact_name)
         )
         #print(len(response['messages']))
         #print(response['messages'])
         response = response['messages'][-1].content
         output = {"response": response}
-        send_message.send_whatsapp_message(phone,response)
+        send_message.send_whatsapp_message(phone,response,account_id)
     else:
         output = {"response":""}
         print("No need to handle this request")
