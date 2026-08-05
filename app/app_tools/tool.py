@@ -1,9 +1,18 @@
+import time
+import random
+
 from langchain.tools import tool, ToolRuntime
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.runnables import RunnableConfig
 
 from constants import constant
+from payment import razor_payment
+
+def generate_booking_id():
+    timestamp = int(time.time())  # Unix timestamp
+    rand = random.randint(1000, 9999)
+    return f"TKT{timestamp}{rand}"
 
 embeddings = OpenAIEmbeddings()
 vector_data = FAISS.load_local(constant.VECTOR_DB,embeddings,allow_dangerous_deserialization=True)
@@ -47,3 +56,54 @@ def knowledge_base(query:str)->str:
     """Search here for general questions regarding bus policy"""
     docs = vector_data.similarity_search(query,k=2)
     return docs
+
+
+@tool(return_direct=True)
+def verify_confirm_pass_ticket(number_of_passes:str,date_of_event:str,total_silver_pass:str,total_gold_pass:str,total_platinum_pass:str,total_cost:str,runtime: ToolRuntime, config: RunnableConfig)->str:
+    """Just verify all details received here"""
+    print("DATE OF EVENT:"+str(date_of_event))
+    print("NUMBER OF PASSES:"+str(number_of_passes))
+    print("TOTAL SILVER:"+str(total_silver_pass))
+    print("TOTAL GOLD:"+str(total_gold_pass))
+    print("TOTAL PLATINUM:"+str(total_platinum_pass))
+    print("TOTAL COST:"+str(total_cost))
+    user_id = config.get("configurable", {}).get("user_id")
+    user_name = config.get("configurable", {}).get("user_name")
+    print("USERNAME------------"+str(user_name))
+    # store = runtime.store
+    # store.put(("users",), user_id, {"booking_status":"confirmed_by_user"})
+    
+    if user_id=="test123":
+        return f"Okay, Prahi you are going to book {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets of total value {total_cost}, for the date {date_of_event}, Please confirm to get payment link!"
+    else:
+        return f"Okay, you are going to book {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets of total value {total_cost}, for the date {date_of_event} Please confirm to get payment link!"
+    
+
+@tool
+def send_payment_link(number_of_passes:str,date_of_event:str,total_silver_pass:str,total_gold_pass:str,total_platinum_pass:str,total_cost:str,runtime: ToolRuntime, config: RunnableConfig)->str:
+    """Send payment link for event pass booking"""
+    print("DATE OF EVENT:"+str(date_of_event))
+    print("NUMBER OF PASSES:"+str(number_of_passes))
+    print("TOTAL SILVER:"+str(total_silver_pass))
+    print("TOTAL GOLD:"+str(total_gold_pass))
+    print("TOTAL PLATINUM:"+str(total_platinum_pass))
+    print("TOTAL COST:"+str(total_cost))
+    #user_id = runtime.state["user_id"]
+    user_id = config.get("configurable", {}).get("user_id")
+    user_name = config.get("configurable", {}).get("user_name")
+    phone = config.get("configurable", {}).get("phone")
+    #user_info = runtime.store.get(("users",), user_id)
+    #print("BOOKING STATUS:"+str(user_info))
+    #BOOKING STATUS:Item(namespace=['users'], key='test123', value={'booking_status': 'confirmed_by_user'}, created_at='2026-04-28T09:40:13.222626+00:00', updated_at='2026-04-28T09:40:13.222629+00:00')
+    #print("BOOKING STATUS:"+str(user_info.value['booking_status']))
+    total_cost = "".join(c for c in total_cost if c.isdigit())
+    amount=total_cost
+    description="Event Ticket Booking"
+    name=user_name
+    contact=phone
+    booking_id=generate_booking_id()
+    #print(booking_id)
+    payment = razor_payment.create_payment_link(amount,description,name,contact,booking_id)
+    payment_id = payment["id"]
+    payment_url = payment["short_url"]
+    return f"Your payment link for {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets, of total value {total_cost} INR ,for the event date {date_of_event} is {payment_url} , Please click the payment link, to complete the payment and confirm your booking. Thank you!"
