@@ -1,5 +1,15 @@
 import time
 import random
+import json
+
+import mysql.connector
+conn = mysql.connector.connect(
+    host="localhost",
+    user="admin",
+    password="8FRf4T",
+    database="event_booking"
+)
+from db_operations import pass_booking
 
 from langchain.tools import tool, ToolRuntime
 from langchain_community.vectorstores import FAISS
@@ -93,6 +103,8 @@ def send_payment_link(number_of_passes:str,date_of_event:str,total_silver_pass:s
     user_name = config.get("configurable", {}).get("user_name")
     phone = config.get("configurable", {}).get("phone")
     account_id = config.get("configurable", {}).get("account_id")
+    booking_details = {"silver":total_silver_pass,"gold":total_gold_pass,"platinum":total_platinum_pass,"date_of_event":date_of_event}
+    booking_details = json.dumps(booking_details)
     #user_info = runtime.store.get(("users",), user_id)
     #print("BOOKING STATUS:"+str(user_info))
     #BOOKING STATUS:Item(namespace=['users'], key='test123', value={'booking_status': 'confirmed_by_user'}, created_at='2026-04-28T09:40:13.222626+00:00', updated_at='2026-04-28T09:40:13.222629+00:00')
@@ -107,4 +119,5 @@ def send_payment_link(number_of_passes:str,date_of_event:str,total_silver_pass:s
     payment = razor_payment.create_payment_link(amount,description,name,contact,booking_id)
     payment_id = payment["id"]
     payment_url = payment["short_url"]
+    booking_db_id = pass_booking.insert_booking(account_id=account_id,phone=phone,connection=conn,booking_id=booking_id,payment_link_id=payment_id,amount=amount,status="pending",booking_details=booking_details)
     return f"Your payment link for {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets, of total value {total_cost} INR ,for the event date {date_of_event} is {payment_url} , Please click the payment link, to complete the payment and confirm your booking. Thank you!"

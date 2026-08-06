@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -24,6 +25,15 @@ from agent_states import agent_state
 from agent_contexts import agent_context
 from hooks import hook
 from whatsapp import send_message
+from db_operations import pass_booking
+
+import mysql.connector
+conn = mysql.connector.connect(
+    host=constant.MYSQL_DB_HOST,
+    user=constant.MYSQL_DB_USER,
+    password=constant.MYSQL_DB_PASS,
+    database=constant.MYSQL_DB
+)
 
 os.environ["OPENAI_API_KEY"]=os.getenv("OPENAI_API_KEY")
 
@@ -125,6 +135,45 @@ def bus_booking_api():
 
 @app.route('/agentic_ai/pass_booking',methods=['GET','POST'])
 def pass_booking_api():
+    #accepting razor pay payment webhook success/fail payment status
+    if request.method == "GET":
+        payment_id = request.args.get("razorpay_payment_id")
+        payment_link_id = request.args.get("razorpay_payment_link_id")
+        reference_id = request.args.get("razorpay_payment_link_reference_id")
+        payment_status = request.args.get("razorpay_payment_link_status")
+        signature = request.args.get("razorpay_signature")
+
+        print("Payment ID:", payment_id)
+        print("Payment Link ID:", payment_link_id)
+        print("Reference ID:", reference_id)
+        print("Status:", payment_status)
+        print("Signature:", signature)
+
+        # Verify payment (recommended)
+        # Update booking status
+        # Redirect or show success page
+        pass_booking.mark_booking_status(conn,payment_link_id=payment_link_id,payment_id=payment_id,payment_status=payment_status)
+        booking_data = pass_booking.get_booking_by_payment_link_id(conn,payment_link_id)
+        account_id = booking_data['account_id']
+        phone = booking_data['phone']
+        booking_id = booking_data['booking_id']
+        amount = str(booking_data['amount'])
+        booking_details = json.loads(booking_data['booking_details'])
+        silver = booking_details.get("silver", 0)
+        gold = booking_details.get("gold", 0)
+        platinum = booking_details.get("platinum", 0)
+        date_of_event = booking_details.get("date_of_event", 0)
+        if payment_status=="paid":
+            response = f"Thanks for the booking, Your Booking ID {booking_id} is confirmed for {silver}-silver , {gold}-gold , {platinum}-platinum of totalling {amount} INR on date {date_of_event}"
+        else:
+            response = f"Sorry your Booking is NOT confirmed! Please try again later"
+        send_message.send_whatsapp_message(phone,response,account_id)
+
+        return f"""
+        <h2>Payment {payment_status.upper()}</h2>
+        <p>Payment ID: {payment_id}</p>
+        <p>Thank you for your payment.</p>
+        """, 200
 
     some_json = request.get_json()
     
