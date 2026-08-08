@@ -164,7 +164,25 @@ def pass_booking_api():
         platinum = booking_details.get("platinum", 0)
         date_of_event = booking_details.get("date_of_event", 0)
         if payment_status=="paid":
-            response = f"Thanks for the booking, Your Booking ID {booking_id} is confirmed for {silver}-silver , {gold}-gold , {platinum}-platinum of totalling {amount} INR on date {date_of_event}"
+            #response = f"Thanks for the booking, Your Booking ID {booking_id} is confirmed for {silver}-silver , {gold}-gold , {platinum}-platinum of totalling {amount} INR on date {date_of_event}"
+            response = f"""🎉 **Booking Confirmed!** 🎟️
+
+            🙏 Thank you for booking with **Dandiya Mahotsav 2026!** 💃🕺
+
+            ✅ **Booking ID:** {booking_id}
+
+            🎫 **Pass Details:**
+            🥈 Silver: {silver} pass(es)
+            🥇 Gold: {gold} pass(es)
+            💎 Platinum: {platinum} pass(es)
+
+            💰 **Total Amount:** ₹{amount}
+            📅 **Event Date:** {date_of_event}
+
+            🎊 Your booking is **confirmed**. We look forward to seeing you at **Dandiya Mahotsav 2026!** 💃🕺✨
+
+            🙏 Thank you!
+            """
         else:
             response = f"Sorry your Booking is NOT confirmed! Please try again later"
         send_message.send_whatsapp_message(phone,response,account_id)

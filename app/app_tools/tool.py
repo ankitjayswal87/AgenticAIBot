@@ -84,9 +84,39 @@ def verify_confirm_pass_ticket(number_of_passes:str,date_of_event:str,total_silv
     # store.put(("users",), user_id, {"booking_status":"confirmed_by_user"})
     
     if user_id=="test123":
-        return f"Okay, Prahi you are going to book {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets of total value {total_cost}, for the date {date_of_event}, Please confirm to get payment link!"
+        #return f"Okay, Prahi you are going to book {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets of total value {total_cost}, for the date {date_of_event}, Please confirm to get payment link!"
+        return f"""🎟️ *Booking Confirmation*
+
+        Okay, Prahi 😊
+
+        You are going to book:
+
+        🥈 *Silver:* {total_silver_pass} pass(es)
+        🥇 *Gold:* {total_gold_pass} pass(es)
+        💎 *Platinum:* {total_platinum_pass} pass(es)
+
+        🎫 *Total Passes:* {number_of_passes}
+        💰 *Total Amount:* ₹{total_cost}
+        📅 *Event Date:* {date_of_event}
+
+        Please *confirm your booking* to receive the 💳 *Payment Link*.
+        """
     else:
-        return f"Okay, you are going to book {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets of total value {total_cost}, for the date {date_of_event} Please confirm to get payment link!"
+        #return f"Okay, you are going to book {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets of total value {total_cost}, for the date {date_of_event} Please confirm to get payment link!"
+        return f"""🎟️ *Booking Confirmation*
+        
+        Okay, You are going to book:
+        
+        🥈 *Silver:* {total_silver_pass} pass(es)
+        🥇 *Gold:* {total_gold_pass} pass(es)
+        💎 *Platinum:* {total_platinum_pass} pass(es)
+        
+        🎫 *Total Passes:* {number_of_passes}
+        💰 *Total Amount:* ₹{total_cost}
+        📅 *Event Date:* {date_of_event}
+        
+        Please *confirm your booking* to receive the 💳 *Payment Link*.
+        """
     
 
 @tool
@@ -120,4 +150,22 @@ def send_payment_link(number_of_passes:str,date_of_event:str,total_silver_pass:s
     payment_id = payment["id"]
     payment_url = payment["short_url"]
     booking_db_id = pass_booking.insert_booking(account_id=account_id,phone=phone,connection=conn,booking_id=booking_id,payment_link_id=payment_id,amount=amount,status="pending",booking_details=booking_details)
-    return f"Your payment link for {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets, of total value {total_cost} INR ,for the event date {date_of_event} is {payment_url} , Please click the payment link, to complete the payment and confirm your booking. Thank you!"
+    #return f"Your payment link for {total_silver_pass}-Silver {total_gold_pass}-Gold {total_platinum_pass}-Platinum, total {number_of_passes} pass tickets, of total value {total_cost} INR ,for the event date {date_of_event} is {payment_url} , Please click the payment link, to complete the payment and confirm your booking. Thank you!"
+    return f"""💳 *Payment Link for Your Booking*
+
+    🎟️ *Pass Details:*
+
+    🥈 Silver: {total_silver_pass} pass(es)
+    🥇 Gold: {total_gold_pass} pass(es)
+    💎 Platinum: {total_platinum_pass} pass(es)
+
+    🎫 **Total Passes:** {number_of_passes}
+    💰 **Total Amount:** ₹{total_cost}
+    📅 **Event Date:** {date_of_event}
+
+    🔗 *Payment Link:* {payment_url}
+
+    👉 Please click the payment link above to complete your payment and *confirm your booking*. ✅
+
+    🙏 Thank you for choosing *Dandiya Mahotsav 2026!* 🎉💃🕺
+    """
