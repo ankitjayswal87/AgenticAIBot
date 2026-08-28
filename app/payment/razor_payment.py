@@ -1,5 +1,6 @@
 import os
 import razorpay
+from constants import constant
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -45,7 +46,7 @@ def create_payment_link(
     contact,
     booking_id,
     email="",
-    callback_url="http://13.201.15.14:5006/agentic_ai/pass_booking"
+    callback_url=constant.RAZORPAY_CALLBACK_URL
 ):
     """
     Create a Razorpay Payment Link.
