@@ -52,6 +52,7 @@ system_prompt=prompt.system_prompt
 #get your dynamic system prompt here
 dynamic_system_prompt = prompt.dynamic_system_prompt
 dynamic_system_prompt_pass_booking = prompt.dynamic_system_prompt_pass_booking
+dynamic_system_prompt_salon_appointment_booking = prompt.dynamic_system_prompt_appointment_booking
 
 #get your hooks here
 log_before_model = hook.log_before_model
@@ -60,6 +61,7 @@ log_after_model = hook.log_after_model
 #get your tools for app
 tools = [tool.verify_confirm_ticket,tool.book_bus_ticket,tool.knowledge_base]
 tools_pass_booking = [tool.verify_confirm_pass_ticket,tool.send_payment_link]
+tools_salon_appointment_booking = [tool.verify_confirm_appointment,tool.book_appointment]
 
 store = InMemoryStore()
 
@@ -94,6 +96,24 @@ agent_pass_booking = create_agent(
     context_schema=context_schema,
     middleware=[
         dynamic_system_prompt_pass_booking,
+        log_before_model,
+        log_after_model,
+        SummarizationMiddleware(
+            model=constant.MODEL,
+            trigger=("messages",constant.TRIGGER_MESSAGE_COUNT),
+            keep=("messages",constant.KEEP_MESSAGE_COUNT)
+        )
+    ]
+    )
+
+agent_salon_appointment_booking = create_agent(
+    model=constant.MODEL,
+    tools=tools_salon_appointment_booking,
+    store=store,
+    checkpointer=InMemorySaver(),
+    context_schema=context_schema,
+    middleware=[
+        dynamic_system_prompt_salon_appointment_booking,
         log_before_model,
         log_after_model,
         SummarizationMiddleware(
@@ -230,6 +250,55 @@ def pass_booking_api():
     elif llm_model=='openai' and event=="message.inbound":
         #print('openai selected...')
         response = agent_pass_booking.invoke(
+            {"messages":[HumanMessage(content=query)]},
+            {"configurable": {"thread_id": thread_id,"user_id":user_id,"user_name":contact_name,"phone":phone,"account_id":account_id}},
+            context=context_schema(user_name=contact_name)
+        )
+        #print(len(response['messages']))
+        #print(response['messages'])
+        response = response['messages'][-1].content
+        output = {"response": response}
+        send_message.send_whatsapp_message(phone,response,account_id)
+    else:
+        output = {"response":""}
+        print("No need to handle this request")
+
+    return jsonify(output)
+
+@app.route('/agentic_ai/salon_appointment_booking',methods=['POST'])
+def salon_appointment_booking_api():
+
+    some_json = request.get_json()
+    
+    event = some_json.get("event", "")
+    workspace_id = some_json.get("workspaceId", "")
+    timestamp = some_json.get("timestamp", "")
+
+    data = some_json.get("data", {})
+    conversation_id = data.get("conversationId", "")
+    message_id = data.get("messageId", "")
+    content = data.get("content", "")
+    message_type = data.get("messageType", "")
+    media_url = data.get("mediaUrl", "")
+    account_id = data.get("accountId", "")
+
+    contact = data.get("contact", {})
+    contact_id = contact.get("id", "")
+    contact_name = contact.get("name", "")
+    phone = contact.get("phone", "")
+    
+    thread_id = contact_id
+    user_id = contact_id
+    query = content
+    llm_model = "openai"
+
+    if llm_model=='ollama':
+        print('ollama selected...')
+        # response = model_ollama.invoke(query)
+        output = {"response": "work in progress"}
+    elif llm_model=='openai' and event=="message.inbound":
+        #print('openai selected...')
+        response = agent_salon_appointment_booking.invoke(
             {"messages":[HumanMessage(content=query)]},
             {"configurable": {"thread_id": thread_id,"user_id":user_id,"user_name":contact_name,"phone":phone,"account_id":account_id}},
             context=context_schema(user_name=contact_name)

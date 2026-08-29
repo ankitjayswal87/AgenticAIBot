@@ -61,6 +61,73 @@ def insert_booking(
     finally:
         cursor.close()
         
+def insert_salon_booking(
+    account_id,
+    phone,
+    connection,
+    booking_id,
+    status,
+    booking_details
+):
+    """
+    Insert a booking into the salon_bookings table.
+    """
+
+    query = """
+        INSERT INTO salon_bookings
+        (
+            account_id,
+            phone,
+            booking_id,
+            status,
+            booking_details
+        )
+        VALUES
+        (
+            %s,
+            %s,
+            %s,
+            %s,
+            %s
+        )
+    """
+
+    values = (
+        account_id,
+        phone,
+        booking_id,
+        status,
+        booking_details
+    )
+
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(query, values)
+        connection.commit()
+        return cursor.lastrowid
+
+    finally:
+        cursor.close()
+        
+def get_appointment_count(connection, appointment_date, appointment_time):
+    query = """
+        SELECT COUNT(*) AS count
+        FROM salon_bookings
+        WHERE booking_details->>'$.appointment_date' = %s
+          AND booking_details->>'$.appointment_time' = %s
+          AND status = 'CONFIRMED'
+    """
+
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute(query, (appointment_date, appointment_time))
+        result = cursor.fetchone()
+        return result["count"]
+    finally:
+        cursor.close()
+        
 def mark_booking_status(connection, payment_link_id, payment_id, payment_status):
     query = """
         UPDATE bookings
