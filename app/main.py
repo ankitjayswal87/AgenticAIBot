@@ -1,5 +1,6 @@
 import os
 import json
+import qrcode
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -36,6 +37,14 @@ conn = mysql.connector.connect(
 )
 
 os.environ["OPENAI_API_KEY"]=os.getenv("OPENAI_API_KEY")
+
+def generate_booking_qr(booking_id):
+    qr_data = {"booking_id": booking_id}
+    qr = qrcode.make(json.dumps(qr_data))
+    filename = f"qr_{booking_id}.png"
+    filename_save = f"/var/www/html/QRCodes/qr_{booking_id}.png"
+    qr.save(filename_save)
+    return filename
 
 app = Flask(__name__)
 limiter = Limiter(get_remote_address,app=app,default_limits=["1000 per day", "100 per hour"])
@@ -206,6 +215,10 @@ def pass_booking_api():
         else:
             response = f"Sorry your Booking is NOT confirmed! Please try again later"
         send_message.send_whatsapp_message(phone,response,account_id)
+        qr_filename = generate_booking_qr(booking_id)
+        qr_url = "http://13.201.46.81/QRCodes/"+str(qr_filename)
+        print(qr_url)
+        send_message.send_whatsapp_image(phone,qr_url,account_id,"Your Ticket QR Code for Entry")
 
         return f"""
         <h2>Payment {payment_status.upper()}</h2>

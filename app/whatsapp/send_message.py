@@ -46,3 +46,61 @@ def send_whatsapp_message(to: str, text: str, account_id: str):
             "status_code": getattr(e.response, "status_code", None),
             "response": getattr(e.response, "text", None)
         }
+        
+def send_whatsapp_image(
+    to: str,
+    media_url: str,
+    account_id: str,
+    caption: str = ""
+):
+    """
+    Send a WhatsApp image message via Pingly.
+
+    Args:
+        to (str): Recipient phone number in E.164 format
+                  (e.g. +919979272423)
+        media_url (str): Public URL of the image
+        account_id (str): Pingly WhatsApp account ID
+        caption (str): Optional image caption
+
+    Returns:
+        dict: API response if JSON, otherwise raw response text.
+    """
+
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "accountId": account_id,
+        "to": to,
+        "type": "image",
+        "mediaUrl": media_url,
+        "text": caption
+    }
+
+    try:
+        response = requests.post(
+            WHATSAPP_SEND_MESSAGE_API_URL,
+            headers=headers,
+            json=payload
+        )
+
+        response.raise_for_status()
+
+        try:
+            return response.json()
+        except ValueError:
+            return {
+                "success": True,
+                "response": response.text
+            }
+
+    except requests.exceptions.RequestException as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "status_code": getattr(e.response, "status_code", None),
+            "response": getattr(e.response, "text", None)
+        }

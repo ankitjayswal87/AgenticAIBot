@@ -16,5 +16,6 @@ dependencies = [
     "mysql-connector-python>=26.7.0",
     "pymupdf>=1.27.2.3",
     "python-dotenv>=1.2.2",
+    "qrcode[pil]>=8.2",
     "razorpay>=2.0.1",
 ]
