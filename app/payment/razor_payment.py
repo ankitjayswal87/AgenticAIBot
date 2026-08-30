@@ -2,6 +2,8 @@ import os
 import razorpay
 from constants import constant
 from dotenv import load_dotenv
+import logging
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -11,33 +13,6 @@ client = razorpay.Client(
         os.getenv("RAZORPAY_KEY_SECRET")
     )
 )
-
-# booking_id = "BOOK12345"
-
-# payment = client.payment_link.create({
-#     "amount": 12500,          # ₹125.00 (paise)
-#     "currency": "INR",
-#     "accept_partial": False,
-#     "description": "Event Ticket Booking",
-#     "customer": {
-#         "name": "Ankit J",
-#         "email": "ankit@example.com",
-#         "contact": "9876543210"
-#     },
-#     "notify": {
-#         "sms": True,
-#         "email": True
-#     },
-#     "reminder_enable": True,
-#     "callback_url": "http://13.201.15.14:5006/agentic_ai/pass_booking",
-#     "callback_method": "get",
-#     "notes": {
-#         "booking_id": booking_id
-#     }
-# })
-
-# print(payment["id"])
-# print(payment["short_url"])
 
 def create_payment_link(
     amount,

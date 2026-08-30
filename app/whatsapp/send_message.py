@@ -1,6 +1,8 @@
 import requests
 import os
 from constants import constant
+import logging
+logger = logging.getLogger(__name__)
 
 # Configuration
 WHATSAPP_SEND_MESSAGE_API_URL = constant.WHATSAPP_SEND_MESSAGE_API_URL

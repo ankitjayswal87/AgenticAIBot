@@ -1,6 +1,12 @@
 import os
 import json
 import qrcode
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -172,16 +178,18 @@ def pass_booking_api():
         payment_status = request.args.get("razorpay_payment_link_status")
         signature = request.args.get("razorpay_signature")
 
-        print("Payment ID:", payment_id)
-        print("Payment Link ID:", payment_link_id)
-        print("Reference ID:", reference_id)
-        print("Status:", payment_status)
-        print("Signature:", signature)
+        logger.info("Payment ID: %s", payment_id)
+        logger.info("Payment Link ID: %s", payment_link_id)
+        logger.info("Reference ID: %s", reference_id)
+        logger.info("Status: %s", payment_status)
+        logger.info("Signature: %s", signature)
 
-        # Verify payment (recommended)
         # Update booking status
         # Redirect or show success page
-        pass_booking.mark_booking_status(conn,payment_link_id=payment_link_id,payment_id=payment_id,payment_status=payment_status)
+        payment_updated = pass_booking.mark_booking_status(conn,payment_link_id=payment_link_id,payment_id=payment_id,payment_status=payment_status)
+        if payment_updated > 0:
+            logger.info("PAYMENT STATUS UPDATED: %s %s %s", payment_id,payment_link_id,payment_status)
+        
         booking_data = pass_booking.get_booking_by_payment_link_id(conn,payment_link_id)
         account_id = booking_data['account_id']
         phone = booking_data['phone']
@@ -192,8 +200,9 @@ def pass_booking_api():
         gold = booking_details.get("gold", 0)
         platinum = booking_details.get("platinum", 0)
         date_of_event = booking_details.get("date_of_event", 0)
+        
         if payment_status=="paid":
-            #response = f"Thanks for the booking, Your Booking ID {booking_id} is confirmed for {silver}-silver , {gold}-gold , {platinum}-platinum of totalling {amount} INR on date {date_of_event}"
+            
             response = f"""🎉 **Booking Confirmed!** 🎟️
 
             🙏 Thank you for booking with **Dandiya Mahotsav 2026!** 💃🕺
@@ -212,13 +221,15 @@ def pass_booking_api():
 
             🙏 Thank you!
             """
+            send_message.send_whatsapp_message(phone,response,account_id)
+            qr_filename = generate_booking_qr(booking_id)
+            logger.info("TICKET QR CODE GENERATED: %s", qr_filename)
+            qr_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/QRCodes/{qr_filename}"
+            logger.info("TICKET QR URL: %s", qr_url)
+            send_message.send_whatsapp_image(phone,qr_url,account_id,"Your Ticket QR Code for Entry")
         else:
             response = f"Sorry your Booking is NOT confirmed! Please try again later"
-        send_message.send_whatsapp_message(phone,response,account_id)
-        qr_filename = generate_booking_qr(booking_id)
-        qr_url = "http://13.201.46.81/QRCodes/"+str(qr_filename)
-        print(qr_url)
-        send_message.send_whatsapp_image(phone,qr_url,account_id,"Your Ticket QR Code for Entry")
+            send_message.send_whatsapp_message(phone,response,account_id)
 
         return f"""
         <h2>Payment {payment_status.upper()}</h2>

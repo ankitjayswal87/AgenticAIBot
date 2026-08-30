@@ -2,6 +2,8 @@ from langchain.agents import AgentState
 from langchain.agents.middleware import before_model, after_model
 from langgraph.runtime import Runtime
 from agent_contexts import agent_context
+import logging
+logger = logging.getLogger(__name__)
 
 # Before model hook
 @before_model

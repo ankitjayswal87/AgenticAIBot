@@ -1,4 +1,5 @@
-#import mysql.connector
+import logging
+logger = logging.getLogger(__name__)
 
 def insert_booking(
     account_id,
