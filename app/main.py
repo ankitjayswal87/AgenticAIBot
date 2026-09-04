@@ -149,11 +149,9 @@ def bus_booking_api():
     llm_model = some_json['model']
 
     if llm_model=='ollama':
-        print('ollama selected...')
         # response = model_ollama.invoke(query)
         output = {"response": "work in progress"}
     elif llm_model=='openai':
-        print('openai selected...')
         #response = agent.invoke({"messages":[{"role":"user","content":query}]},{"configurable": {"thread_id": thread_id}})
         response = agent.invoke(
             #{"messages":[HumanMessage(content=query)],"user_id":user_id,"booking_status":"pending"},
@@ -237,9 +235,13 @@ def pass_booking_api():
         <p>Thank you for your payment.</p>
         """, 200
 
-    some_json = request.get_json()
     
+    logger.info("EVENT BOOKING===")
+    some_json = request.get_json()
+        
     event = some_json.get("event", "")
+    logger.info("WhatsAppMessage: %s", some_json)
+    
     workspace_id = some_json.get("workspaceId", "")
     timestamp = some_json.get("timestamp", "")
 
@@ -255,24 +257,17 @@ def pass_booking_api():
     contact_id = contact.get("id", "")
     contact_name = contact.get("name", "")
     phone = contact.get("phone", "")
-
-    
-    # thread_id = some_json['thread_id']
-    # user_id = some_json['user_id']
-    # query = some_json['query']
-    # llm_model = some_json['model']
-    
+        
     thread_id = contact_id
     user_id = contact_id
     query = content
     llm_model = "openai"
 
     if llm_model=='ollama':
-        print('ollama selected...')
+        logger.info("ollama selected...")
         # response = model_ollama.invoke(query)
         output = {"response": "work in progress"}
-    elif llm_model=='openai' and event=="message.inbound":
-        #print('openai selected...')
+    elif llm_model=='openai' and event=="message.inbound" and account_id=="81f4985e-8c20-4a0c-94e9-1c5dfa211bb7":
         response = agent_pass_booking.invoke(
             {"messages":[HumanMessage(content=query)]},
             {"configurable": {"thread_id": thread_id,"user_id":user_id,"user_name":contact_name,"phone":phone,"account_id":account_id}},
@@ -285,58 +280,59 @@ def pass_booking_api():
         send_message.send_whatsapp_message(phone,response,account_id)
     else:
         output = {"response":""}
-        print("No need to handle this request")
+        logger.info("No need to handle this request")
 
     return jsonify(output)
 
 @app.route('/agentic_ai/salon_appointment_booking',methods=['POST'])
 def salon_appointment_booking_api():
-
-    some_json = request.get_json()
     
-    event = some_json.get("event", "")
-    workspace_id = some_json.get("workspaceId", "")
-    timestamp = some_json.get("timestamp", "")
+        logger.info("SALON APPOINTMENT===")
 
-    data = some_json.get("data", {})
-    conversation_id = data.get("conversationId", "")
-    message_id = data.get("messageId", "")
-    content = data.get("content", "")
-    message_type = data.get("messageType", "")
-    media_url = data.get("mediaUrl", "")
-    account_id = data.get("accountId", "")
+        some_json = request.get_json()
+        logger.info("WhatsAppMessage: %s", some_json)
+        
+        event = some_json.get("event", "")
+        workspace_id = some_json.get("workspaceId", "")
+        timestamp = some_json.get("timestamp", "")
 
-    contact = data.get("contact", {})
-    contact_id = contact.get("id", "")
-    contact_name = contact.get("name", "")
-    phone = contact.get("phone", "")
-    
-    thread_id = contact_id
-    user_id = contact_id
-    query = content
-    llm_model = "openai"
+        data = some_json.get("data", {})
+        conversation_id = data.get("conversationId", "")
+        message_id = data.get("messageId", "")
+        content = data.get("content", "")
+        message_type = data.get("messageType", "")
+        media_url = data.get("mediaUrl", "")
+        account_id = data.get("accountId", "")
 
-    if llm_model=='ollama':
-        print('ollama selected...')
-        # response = model_ollama.invoke(query)
-        output = {"response": "work in progress"}
-    elif llm_model=='openai' and event=="message.inbound":
-        #print('openai selected...')
-        response = agent_salon_appointment_booking.invoke(
-            {"messages":[HumanMessage(content=query)]},
-            {"configurable": {"thread_id": thread_id,"user_id":user_id,"user_name":contact_name,"phone":phone,"account_id":account_id}},
-            context=context_schema(user_name=contact_name)
-        )
-        #print(len(response['messages']))
-        #print(response['messages'])
-        response = response['messages'][-1].content
-        output = {"response": response}
-        send_message.send_whatsapp_message(phone,response,account_id)
-    else:
-        output = {"response":""}
-        print("No need to handle this request")
+        contact = data.get("contact", {})
+        contact_id = contact.get("id", "")
+        contact_name = contact.get("name", "")
+        phone = contact.get("phone", "")
+        
+        thread_id = contact_id
+        user_id = contact_id
+        query = content
+        llm_model = "openai"
 
-    return jsonify(output)
+        if llm_model=='ollama':
+            # response = model_ollama.invoke(query)
+            output = {"response": "work in progress"}
+        elif llm_model=='openai' and event=="message.inbound" and account_id=="f940e484-3224-4d49-b579-a0910dc8ec8e":
+            response = agent_salon_appointment_booking.invoke(
+                {"messages":[HumanMessage(content=query)]},
+                {"configurable": {"thread_id": thread_id,"user_id":user_id,"user_name":contact_name,"phone":phone,"account_id":account_id}},
+                context=context_schema(user_name=contact_name)
+            )
+            #print(len(response['messages']))
+            #print(response['messages'])
+            response = response['messages'][-1].content
+            output = {"response": response}
+            send_message.send_whatsapp_message(phone,response,account_id)
+        else:
+            output = {"response":""}
+            logger.info("No need to handle this request")
+
+        return jsonify(output)
 
 
 if __name__ == "__main__":

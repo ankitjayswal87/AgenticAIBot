@@ -9,6 +9,6 @@ MYSQL_DB_USER="admin"
 MYSQL_DB_PASS="8FRf4T"
 MYSQL_DB="event_booking"
 WHATSAPP_SEND_MESSAGE_API_URL="https://pingly.in/api/v1/messages"
-RAZORPAY_CALLBACK_URL="http://13.201.46.81:5006/agentic_ai/pass_booking"
+RAZORPAY_CALLBACK_URL="http://13.126.246.52:5006/agentic_ai/pass_booking"
 ADVANCE_BOOKING_DAYS=3
 MAX_BOOKINGS_PER_SLOT=3
