@@ -3,6 +3,8 @@ import json
 import qrcode
 import logging
 from pathlib import Path
+import posixpath
+from urllib.parse import urlparse
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
@@ -361,10 +363,18 @@ def print_app_api():
         contact_name = contact.get("name", "")
         phone = contact.get("phone", "")
         
-        extension = Path(content).suffix
-        helper.download_file_to_disk(media_url,content)
         document_type = ""
-        local_url = "http://13.126.246.52/PrintDocs/"+str(content)
+        page_count = ""
+        extension = ""
+        if message_type=="document":
+            extension = Path(content).suffix
+            helper.download_file_to_disk(media_url,content)
+            local_url = "http://13.126.246.52/PrintDocs/"+str(content)
+        else:
+            parsed_url = urlparse(media_url)
+            content = posixpath.basename(parsed_url.path)
+            helper.download_file_to_disk(media_url,content)
+            local_url = "http://13.126.246.52/PrintDocs/"+str(content)
         
         if extension==".pdf":
             document_type = "pdf"
@@ -378,6 +388,12 @@ def print_app_api():
             if is_word:
                 page_count = helper.get_word_page_count(content)
                 logger.info("WORD-FileName: %s WORD-Pages: %s", content, page_count)
+        elif message_type=="image":
+            document_type = "image"
+            is_image = helper.is_valid_image(content)
+            if is_image:
+                page_count = helper.get_image_page_count(content)
+                logger.info("IMAGE-FileName: %s IMAGE-Pages: %s", content, page_count)
         else:
             document_type = "unknown"
             page_count = "Not-Available"
