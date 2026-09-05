@@ -164,3 +164,73 @@ def get_booking_by_payment_link_id(connection, payment_link_id):
 
     finally:
         cursor.close()
+        
+
+def insert_document(
+    account_id,
+    phone,
+    workspace_id,
+    conversation_id,
+    message_id,
+    content,
+    message_type,
+    media_url,
+    page_count,
+    document_type,
+    connection
+):
+    """
+    Insert a document/message into the documents table.
+    """
+
+    query = """
+        INSERT INTO documents
+        (
+            account_id,
+            phone,
+            workspace_id,
+            conversation_id,
+            message_id,
+            content,
+            message_type,
+            media_url,
+            page_count,
+            document_type
+        )
+        VALUES
+        (
+            %s,
+            %s,
+            %s,
+            %s,
+            %s,
+            %s,
+            %s,
+            %s,
+            %s,
+            %s
+        )
+    """
+
+    values = (
+        account_id,
+        phone,
+        workspace_id,
+        conversation_id,
+        message_id,
+        content,
+        message_type,
+        media_url,
+        page_count,
+        document_type
+    )
+
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(query, values)
+        connection.commit()
+        return cursor.lastrowid
+
+    finally:
+        cursor.close()

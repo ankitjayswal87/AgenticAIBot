@@ -2,6 +2,7 @@ import os
 import json
 import qrcode
 import logging
+from pathlib import Path
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
@@ -33,6 +34,7 @@ from agent_contexts import agent_context
 from hooks import hook
 from whatsapp import send_message
 from db_operations import pass_booking
+from helper_functions import helper
 
 import mysql.connector
 conn = mysql.connector.connect(
@@ -332,6 +334,72 @@ def salon_appointment_booking_api():
             output = {"response":""}
             logger.info("No need to handle this request")
 
+        return jsonify(output)
+    
+@app.route('/agentic_ai/print_app',methods=['POST'])
+def print_app_api():
+    
+        logger.info("PRINT APP===")
+
+        some_json = request.get_json()
+        logger.info("WhatsAppMessage: %s", some_json)
+        
+        event = some_json.get("event", "")
+        workspace_id = some_json.get("workspaceId", "")
+        timestamp = some_json.get("timestamp", "")
+
+        data = some_json.get("data", {})
+        conversation_id = data.get("conversationId", "")
+        message_id = data.get("messageId", "")
+        content = data.get("content", "")
+        message_type = data.get("messageType", "")
+        media_url = data.get("mediaUrl", "")
+        account_id = data.get("accountId", "")
+
+        contact = data.get("contact", {})
+        contact_id = contact.get("id", "")
+        contact_name = contact.get("name", "")
+        phone = contact.get("phone", "")
+        
+        extension = Path(content).suffix
+        helper.download_file_to_disk(media_url,content)
+        document_type = ""
+        local_url = "http://13.126.246.52/PrintDocs/"+str(content)
+        
+        if extension==".pdf":
+            document_type = "pdf"
+            is_pdf = helper.is_valid_pdf(content)
+            if is_pdf:
+                page_count = helper.get_pdf_page_count(content)
+                logger.info("PDF-FileName: %s PDF-Pages: %s", content, page_count)
+        elif extension==".docx":
+            document_type = "word"
+            is_word = helper.is_valid_word(content)
+            if is_word:
+                page_count = helper.get_word_page_count(content)
+                logger.info("WORD-FileName: %s WORD-Pages: %s", content, page_count)
+        else:
+            document_type = "unknown"
+            page_count = "Not-Available"
+            logger.info("UNKNOWN-FileName: %s UNKNOWN-Pages: %s", content, page_count)
+        
+        document_id = pass_booking.insert_document(
+            account_id=account_id,
+            phone=phone,
+            workspace_id=workspace_id,
+            conversation_id=conversation_id,
+            message_id=message_id,
+            content=content,
+            message_type=message_type,
+            media_url=local_url,
+            page_count=page_count,
+            document_type=document_type,
+            connection=conn
+        )
+
+        logger.info("Document ID: %s", document_id)
+
+        output = {"response":""}
         return jsonify(output)
 
 
