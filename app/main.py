@@ -261,6 +261,10 @@ def pass_booking_api():
     contact_id = contact.get("id", "")
     contact_name = contact.get("name", "")
     phone = contact.get("phone", "")
+    
+    if event=="test.ping":
+        output = {"response":""}
+        return jsonify(output)
         
     thread_id = contact_id
     user_id = contact_id
@@ -313,6 +317,10 @@ def salon_appointment_booking_api():
         contact_name = contact.get("name", "")
         phone = contact.get("phone", "")
         
+        if event=="test.ping":
+            output = {"response":""}
+            return jsonify(output)
+        
         thread_id = contact_id
         user_id = contact_id
         query = content
@@ -363,60 +371,73 @@ def print_app_api():
         contact_name = contact.get("name", "")
         phone = contact.get("phone", "")
         
-        document_type = ""
-        page_count = ""
-        extension = ""
-        if message_type=="document":
-            extension = Path(content).suffix
-            helper.download_file_to_disk(media_url,content)
-            local_url = "http://13.126.246.52/PrintDocs/"+str(content)
-        else:
-            parsed_url = urlparse(media_url)
-            content = posixpath.basename(parsed_url.path)
-            helper.download_file_to_disk(media_url,content)
-            local_url = "http://13.126.246.52/PrintDocs/"+str(content)
+        if event=="test.ping":
+            output = {"response":""}
+            return jsonify(output)
         
-        if extension==".pdf":
-            document_type = "pdf"
-            is_pdf = helper.is_valid_pdf(content)
-            if is_pdf:
-                page_count = helper.get_pdf_page_count(content)
-                logger.info("PDF-FileName: %s PDF-Pages: %s", content, page_count)
-        elif extension==".docx":
-            document_type = "word"
-            is_word = helper.is_valid_word(content)
-            if is_word:
-                page_count = helper.get_word_page_count(content)
-                logger.info("WORD-FileName: %s WORD-Pages: %s", content, page_count)
-        elif message_type=="image":
-            document_type = "image"
-            is_image = helper.is_valid_image(content)
-            if is_image:
-                page_count = helper.get_image_page_count(content)
-                logger.info("IMAGE-FileName: %s IMAGE-Pages: %s", content, page_count)
-        else:
-            document_type = "unknown"
-            page_count = "Not-Available"
-            logger.info("UNKNOWN-FileName: %s UNKNOWN-Pages: %s", content, page_count)
+        if message_type=="document" or message_type=="image":
         
-        document_id = pass_booking.insert_document(
-            account_id=account_id,
-            phone=phone,
-            workspace_id=workspace_id,
-            conversation_id=conversation_id,
-            message_id=message_id,
-            content=content,
-            message_type=message_type,
-            media_url=local_url,
-            page_count=page_count,
-            document_type=document_type,
-            connection=conn
-        )
+            client_id = pass_booking.get_client_id_by_number(account_id,conn)
+            logger.info("Client ID: %s", client_id)
+            
+            document_type = ""
+            page_count = ""
+            extension = ""
+            if message_type=="document":
+                extension = Path(content).suffix
+                helper.download_file_to_disk(media_url,content)
+                local_url = "http://13.126.246.52/PrintDocs/"+str(content)
+            else:
+                parsed_url = urlparse(media_url)
+                content = posixpath.basename(parsed_url.path)
+                helper.download_file_to_disk(media_url,content)
+                local_url = "http://13.126.246.52/PrintDocs/"+str(content)
+            
+            if extension==".pdf":
+                document_type = "pdf"
+                is_pdf = helper.is_valid_pdf(content)
+                if is_pdf:
+                    page_count = helper.get_pdf_page_count(content)
+                    logger.info("PDF-FileName: %s PDF-Pages: %s", content, page_count)
+            elif extension==".docx":
+                document_type = "word"
+                is_word = helper.is_valid_word(content)
+                if is_word:
+                    page_count = helper.get_word_page_count(content)
+                    logger.info("WORD-FileName: %s WORD-Pages: %s", content, page_count)
+            elif message_type=="image":
+                document_type = "image"
+                is_image = helper.is_valid_image(content)
+                if is_image:
+                    page_count = helper.get_image_page_count(content)
+                    logger.info("IMAGE-FileName: %s IMAGE-Pages: %s", content, page_count)
+            else:
+                document_type = "unknown"
+                page_count = "Not-Available"
+                logger.info("UNKNOWN-FileName: %s UNKNOWN-Pages: %s", content, page_count)
+            
+            document_id = pass_booking.insert_document(
+                account_id=account_id,
+                client_id=client_id,
+                phone=phone,
+                workspace_id=workspace_id,
+                conversation_id=conversation_id,
+                message_id=message_id,
+                content=content,
+                message_type=message_type,
+                media_url=local_url,
+                page_count=page_count,
+                document_type=document_type,
+                connection=conn
+            )
 
-        logger.info("Document ID: %s", document_id)
+            logger.info("Document ID: %s", document_id)
 
-        output = {"response":""}
-        return jsonify(output)
+            output = {"response":""}
+            return jsonify(output)
+        else:
+            output = {"response":""}
+            return jsonify(output)
 
 
 if __name__ == "__main__":

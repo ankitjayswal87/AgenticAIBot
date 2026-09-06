@@ -165,9 +165,29 @@ def get_booking_by_payment_link_id(connection, payment_link_id):
     finally:
         cursor.close()
         
+def get_client_id_by_number(number_id,connection):
+    
+    cursor = connection.cursor()
+
+    query = """
+        SELECT client_id
+        FROM did_numbers
+        WHERE number_id = %s
+          AND is_deleted = 0
+        LIMIT 1
+    """
+
+    cursor.execute(query, (number_id,))
+    result = cursor.fetchone()
+
+    cursor.close()
+
+    return result[0] if result else None
+        
 
 def insert_document(
     account_id,
+    client_id,
     phone,
     workspace_id,
     conversation_id,
@@ -187,6 +207,7 @@ def insert_document(
         INSERT INTO documents
         (
             account_id,
+            client_id,
             phone,
             workspace_id,
             conversation_id,
@@ -208,12 +229,14 @@ def insert_document(
             %s,
             %s,
             %s,
+            %s,
             %s
         )
     """
 
     values = (
         account_id,
+        client_id,
         phone,
         workspace_id,
         conversation_id,
