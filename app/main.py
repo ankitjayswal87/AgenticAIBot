@@ -1,3 +1,6 @@
+import faulthandler
+faulthandler.enable()
+
 import os
 import json
 import qrcode
@@ -17,7 +20,7 @@ load_dotenv()
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import Tool
-from langchain.agents import create_agent
+#from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain.agents.middleware import dynamic_prompt, ModelRequest, before_model, after_model, SummarizationMiddleware
 from langgraph.store.memory import InMemoryStore
@@ -57,7 +60,14 @@ def generate_booking_qr(booking_id):
     return filename
 
 app = Flask(__name__)
-limiter = Limiter(get_remote_address,app=app,default_limits=["1000 per day", "100 per hour"])
+#limiter = Limiter(get_remote_address,app=app,default_limits=["1000 per day", "100 per hour"])
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    storage_uri="memory://",  # Force clean storage initialization
+    default_limits=["1000 per day", "100 per hour"]
+)
+
 
 #get your agent state_schema here
 state_schema = agent_state.CustomState
@@ -386,30 +396,32 @@ def print_app_api():
             if message_type=="document":
                 extension = Path(content).suffix
                 helper.download_file_to_disk(media_url,content)
-                local_url = "http://13.126.246.52/PrintDocs/"+str(content)
+                local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
             else:
                 parsed_url = urlparse(media_url)
                 content = posixpath.basename(parsed_url.path)
                 helper.download_file_to_disk(media_url,content)
-                local_url = "http://13.126.246.52/PrintDocs/"+str(content)
+                local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+            
+            doc_file_path = f"{constant.PRINT_DOCS_PATH}{content}"
             
             if extension==".pdf":
                 document_type = "pdf"
-                is_pdf = helper.is_valid_pdf(content)
+                is_pdf = helper.is_valid_pdf(doc_file_path)
                 if is_pdf:
-                    page_count = helper.get_pdf_page_count(content)
+                    page_count = helper.get_pdf_page_count(doc_file_path)
                     logger.info("PDF-FileName: %s PDF-Pages: %s", content, page_count)
             elif extension==".docx":
                 document_type = "word"
-                is_word = helper.is_valid_word(content)
+                is_word = helper.is_valid_word(doc_file_path)
                 if is_word:
-                    page_count = helper.get_word_page_count(content)
+                    page_count = helper.get_word_page_count(doc_file_path)
                     logger.info("WORD-FileName: %s WORD-Pages: %s", content, page_count)
             elif message_type=="image":
                 document_type = "image"
-                is_image = helper.is_valid_image(content)
+                is_image = helper.is_valid_image(doc_file_path)
                 if is_image:
-                    page_count = helper.get_image_page_count(content)
+                    page_count = helper.get_image_page_count(doc_file_path)
                     logger.info("IMAGE-FileName: %s IMAGE-Pages: %s", content, page_count)
             else:
                 document_type = "unknown"

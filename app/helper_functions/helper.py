@@ -7,7 +7,6 @@ import zipfile
 import re
 
 def is_valid_pdf(file_path):
-    file_path = "/var/www/html/PrintDocs/"+str(file_path)
     try:
         reader = PdfReader(file_path)
         # Attempt to read the number of pages to verify integrity
@@ -17,7 +16,6 @@ def is_valid_pdf(file_path):
         return False
     
 def get_pdf_page_count(file_path):
-    file_path = "/var/www/html/PrintDocs/"+str(file_path)
     try:
         reader = PdfReader(file_path)
         return len(reader.pages)
@@ -25,7 +23,6 @@ def get_pdf_page_count(file_path):
         return f"Error: {e}"
     
 def is_valid_word(file_path):
-    file_path = "/var/www/html/PrintDocs/"+str(file_path)
     try:
         doc = Document(file_path)
         # Attempt to access paragraphs to verify layout structure
@@ -35,7 +32,6 @@ def is_valid_word(file_path):
         return False
     
 def get_word_page_count(file_path):
-    file_path = "/var/www/html/PrintDocs/"+str(file_path)
     try:
         with zipfile.ZipFile(file_path) as docx:
             # Read the application properties XML file from the docx container
@@ -55,7 +51,6 @@ def get_word_page_count(file_path):
         return "Not-Available"
 
 def is_valid_image(file_path):
-    file_path = "/var/www/html/PrintDocs/"+str(file_path)
     try:
         with Image.open(file_path) as img:
             img.verify()  # Verifies the file structure without loading full data
@@ -64,7 +59,6 @@ def is_valid_image(file_path):
         return False
     
 def get_image_page_count(file_path):
-    file_path = "/var/www/html/PrintDocs/"+str(file_path)
     try:
         with Image.open(file_path) as img:
             # Check if the image format supports multiple frames/pages
