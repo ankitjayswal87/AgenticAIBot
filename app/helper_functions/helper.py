@@ -5,6 +5,8 @@ from docx import Document
 from PIL import Image
 import zipfile
 import re
+import subprocess
+import os
 
 def is_valid_pdf(file_path):
     try:
@@ -73,3 +75,19 @@ def download_file_to_disk(media_url,file_name):
     response = requests.get(media_url, allow_redirects=True)
     with open(file_name, "wb") as file:
         file.write(response.content)
+        
+def word_to_pdf(word_file, output_dir):
+    subprocess.run([
+        "libreoffice",
+        "--headless",
+        "--convert-to", "pdf",
+        "--outdir", output_dir,
+        word_file
+    ], check=True)
+
+    pdf_file = os.path.join(
+        output_dir,
+        os.path.splitext(os.path.basename(word_file))[0] + ".pdf"
+    )
+
+    return pdf_file
