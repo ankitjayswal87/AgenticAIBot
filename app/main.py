@@ -402,6 +402,7 @@ def print_app_api():
                 else:
                     parsed_url = urlparse(media_url)
                     content = posixpath.basename(parsed_url.path)
+                    extension = os.path.splitext(content)[1]
                     helper.download_file_to_disk(media_url,content)
                     local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
                 
