@@ -423,6 +423,38 @@ def print_app_api():
                         content = os.path.splitext(os.path.basename(doc_file_path))[0] + ".pdf"
                         logger.info("CONVERTED-PDF-FileName: %s", content)
                         local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+                elif extension==".xlsx" or extension==".xls":
+                    document_type = "xlsx"
+                    is_xlsx = helper.is_valid_xlsx(doc_file_path)
+                    if is_xlsx:
+                        sheet_count = helper.get_xlsx_sheet_count(doc_file_path)
+                        page_count = sheet_count
+                        logger.info("EXCEL-FileName: %s Excel-Sheets: %s", content, sheet_count)
+                        # pdf_file = helper.word_to_pdf(doc_file_path, constant.PRINT_DOCS_PATH)
+                        # content = os.path.splitext(os.path.basename(doc_file_path))[0] + ".pdf"
+                        # logger.info("CONVERTED-PDF-FileName: %s", content)
+                        # local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+                elif extension=="." or extension=="":
+                    is_pdf = helper.is_valid_pdf(doc_file_path)
+                    if is_pdf:
+                        document_type = "pdf"
+                        page_count = helper.get_pdf_page_count(doc_file_path)
+                        logger.info("PDF-FileName: %s PDF-Pages: %s", content, page_count)
+                    is_word = helper.is_valid_word(doc_file_path)
+                    if is_word:
+                        document_type = "word"
+                        page_count = helper.get_word_page_count(doc_file_path)
+                        logger.info("WORD-FileName: %s WORD-Pages: %s", content, page_count)
+                        pdf_file = helper.word_to_pdf(doc_file_path, constant.PRINT_DOCS_PATH)
+                        content = os.path.splitext(os.path.basename(doc_file_path))[0] + ".pdf"
+                        logger.info("CONVERTED-PDF-FileName: %s", content)
+                        local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+                    is_xlsx = helper.is_valid_xlsx(doc_file_path)
+                    if is_xlsx:
+                        document_type = "xlsx"
+                        sheet_count = helper.get_xlsx_sheet_count(doc_file_path)
+                        page_count = sheet_count
+                        logger.info("EXCEL-FileName: %s Excel-Sheets: %s", content, sheet_count)
                 elif message_type=="image":
                     document_type = "image"
                     is_image = helper.is_valid_image(doc_file_path)

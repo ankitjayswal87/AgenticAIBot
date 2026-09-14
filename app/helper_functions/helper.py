@@ -2,6 +2,7 @@ import requests
 from io import BytesIO
 from PyPDF2 import PdfReader
 from docx import Document
+import openpyxl
 from PIL import Image
 import zipfile
 import re
@@ -69,6 +70,27 @@ def get_image_page_count(file_path):
             return 1 # Standard single-page images
     except Exception as e:
         return f"Error: {e}"
+    
+def is_valid_xlsx(file_path):
+    try:
+        # read_only=True speeds up validation by avoiding loading all data into memory
+        wb = openpyxl.load_workbook(file_path, read_only=True)
+        # Accessing sheet names forces the parser to read the file structure
+        _ = wb.sheetnames
+        wb.close()
+        return True
+    except Exception:
+        return False
+    
+def get_xlsx_sheet_count(file_path):
+    try:
+        # read_only=True speeds up loading by skipping full data parsing
+        wb = openpyxl.load_workbook(file_path, read_only=True)
+        count = len(wb.sheetnames)
+        wb.close()
+        return count
+    except Exception:
+        return 0
 
 def download_file_to_disk(media_url,file_name):
     file_name = "/var/www/html/PrintDocs/"+str(file_name)
