@@ -405,6 +405,8 @@ def print_app_api():
                     extension = os.path.splitext(content)[1]
                     helper.download_file_to_disk(media_url,content)
                     local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+                    
+                extension = extension.lower()
                 
                 doc_file_path = f"{constant.PRINT_DOCS_PATH}{content}"
                 
