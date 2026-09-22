@@ -373,6 +373,7 @@ def print_app_api():
         message_id = data.get("messageId", "")
         content = data.get("content", "")
         message_type = data.get("messageType", "")
+        mime_type = data.get("mimeType", "")
         media_url = data.get("mediaUrl", "")
         account_id = data.get("accountId", "")
 
@@ -424,6 +425,8 @@ def print_app_api():
                         logger.info("WORD-FileName: %s WORD-Pages: %s", content, page_count)
                         pdf_file = helper.word_to_pdf(doc_file_path, constant.PRINT_DOCS_PATH)
                         content = os.path.splitext(os.path.basename(doc_file_path))[0] + ".pdf"
+                        page_count = helper.get_pdf_page_count(f"{constant.PRINT_DOCS_PATH}{content}")
+                        logger.info("PAGE COUNT WORD->PDF %s",page_count)
                         logger.info("CONVERTED-PDF-FileName: %s", content)
                         local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
                 elif extension==".xlsx" or extension==".xls":
@@ -438,6 +441,7 @@ def print_app_api():
                         # logger.info("CONVERTED-PDF-FileName: %s", content)
                         # local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
                 elif extension=="." or extension=="":
+                    logger.info("Handling files with empty extesion")
                     is_pdf = helper.is_valid_pdf(doc_file_path)
                     if is_pdf:
                         document_type = "pdf"
@@ -450,6 +454,8 @@ def print_app_api():
                         logger.info("WORD-FileName: %s WORD-Pages: %s", content, page_count)
                         pdf_file = helper.word_to_pdf(doc_file_path, constant.PRINT_DOCS_PATH)
                         content = os.path.splitext(os.path.basename(doc_file_path))[0] + ".pdf"
+                        page_count = helper.get_pdf_page_count(f"{constant.PRINT_DOCS_PATH}{content}")
+                        logger.info("PAGE COUNT WORD->PDF %s",page_count)
                         logger.info("CONVERTED-PDF-FileName: %s", content)
                         local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
                     is_xlsx = helper.is_valid_xlsx(doc_file_path)
@@ -458,7 +464,12 @@ def print_app_api():
                         sheet_count = helper.get_xlsx_sheet_count(doc_file_path)
                         page_count = sheet_count
                         logger.info("EXCEL-FileName: %s Excel-Sheets: %s", content, sheet_count)
-                elif message_type=="image":
+                    is_image = helper.is_valid_image(doc_file_path)
+                    if is_image:
+                        document_type = "image"
+                        page_count = helper.get_image_page_count(doc_file_path)
+                        logger.info("IMAGE-FileName: %s IMAGE-Pages: %s", content, page_count)
+                elif mime_type.split("/")[0].lower()=="image":
                     document_type = "image"
                     is_image = helper.is_valid_image(doc_file_path)
                     if is_image:
