@@ -356,6 +356,34 @@ def salon_appointment_booking_api():
 
         return jsonify(output)
     
+@app.route('/agentic_ai/merge_files',methods=['POST'])
+def merge_files_api():
+    
+        logger.info("MERGEING FILES PRINT APP===")
+
+        some_json = request.get_json()
+        logger.info("MERGE REQUEST: %s", some_json)
+        
+        doc_ids = some_json.get("doc_ids", "")
+        logger.info("DOC IDS: %s", doc_ids)
+        conn = mysql.connector.connect(host=constant.MYSQL_DB_HOST,user=constant.MYSQL_DB_USER,password=constant.MYSQL_DB_PASS,database=constant.MYSQL_DB)
+        try:
+            file_paths,phone = pass_booking.get_document_file_paths(conn, doc_ids, constant.PRINT_DOCS_PATH)
+            logger.info("MERGE FILE PATHS: %s", file_paths)
+            logger.info("MERGE FILE FOR CUSTOMER: %s", phone)
+            merged_doc_name = f"{constant.PRINT_DOCS_PATH}final_{phone}_document.pdf"
+            output = helper.merge_mixed_files(merged_doc_name, file_paths)
+            #output = {"response":"success","final_doc":merged_doc_name}
+
+            return jsonify(output)
+        except Exception as e:
+                logger.error("merge_files api failed")
+                output = {"response":"fail"}
+                return jsonify(output)
+        finally:
+            if conn and conn.is_connected():
+                conn.close()
+    
 @app.route('/agentic_ai/print_app',methods=['POST'])
 def print_app_api():
     

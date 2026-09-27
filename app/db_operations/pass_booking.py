@@ -257,3 +257,69 @@ def insert_document(
 
     finally:
         cursor.close()
+        
+
+def get_document_file_paths(connection, document_ids, base_path):
+    """
+    Get document file paths from documents table.
+
+    Args:
+        connection: Existing MySQL database connection
+        document_ids: Comma-separated document IDs.
+                      Example: "2391,2393,2395"
+
+    Returns:
+        List of file paths in the same order as document_ids.
+    """
+
+    if not document_ids:
+        return []
+
+    try:
+        # Convert comma-separated IDs to integers
+        ids = [
+            int(doc_id.strip())
+            for doc_id in document_ids.split(",")
+            if doc_id.strip()
+        ]
+
+        if not ids:
+            return []
+
+        cursor = connection.cursor()
+
+        placeholders = ",".join(["%s"] * len(ids))
+
+        query = f"""
+            SELECT id, content,phone
+            FROM documents
+            WHERE id IN ({placeholders})
+        """
+
+        cursor.execute(query, ids)
+
+        rows = cursor.fetchall()
+
+        cursor.close()
+        phone = rows[0][2]
+
+        # Create lookup dictionary
+        content_by_id = {
+            row[0]: row[1]
+            for row in rows
+        }
+
+        #base_path = "/var/www/html/PrintDocs/"
+
+        # Preserve input ID order
+        file_paths = [
+            base_path + content_by_id[doc_id]
+            for doc_id in ids
+            if doc_id in content_by_id and content_by_id[doc_id]
+        ],phone
+
+        return file_paths
+
+    except Exception as e:
+        print(f"Error getting document file paths: {e}")
+        return []
