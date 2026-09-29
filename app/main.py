@@ -65,7 +65,7 @@ limiter = Limiter(
     key_func=get_remote_address,
     app=app,
     storage_uri="memory://",  # Force clean storage initialization
-    default_limits=["1000 per day", "100 per hour"]
+    default_limits=["100000 per day", "10000 per hour"]
 )
 
 
