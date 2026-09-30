@@ -1,5 +1,5 @@
-SERVER_HOST="13.126.246.52"
-HTTP_SCHEMA="http"
+SERVER_HOST="printeasy.telephonyhub.in"
+HTTP_SCHEMA="https"
 PRINT_DOCS_PATH="/var/www/html/PrintDocs/"
 MODEL="gpt-4o-mini"
 TRIGGER_MESSAGE_COUNT=10
