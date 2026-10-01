@@ -8,6 +8,8 @@ import zipfile
 import re
 import subprocess
 import os
+import shutil
+import uuid
 from PyPDF2 import PdfWriter
 
 def is_valid_pdf(file_path):
@@ -99,21 +101,63 @@ def download_file_to_disk(media_url,file_name):
     with open(file_name, "wb") as file:
         file.write(response.content)
         
+# def word_to_pdf(word_file, output_dir):
+#     subprocess.run([
+#         "libreoffice",
+#         "--headless",
+#         "--convert-to", "pdf",
+#         "--outdir", output_dir,
+#         word_file
+#     ], check=True)
+
+#     pdf_file = os.path.join(
+#         output_dir,
+#         os.path.splitext(os.path.basename(word_file))[0] + ".pdf"
+#     )
+
+#     return pdf_file
+
 def word_to_pdf(word_file, output_dir):
-    subprocess.run([
-        "libreoffice",
-        "--headless",
-        "--convert-to", "pdf",
-        "--outdir", output_dir,
-        word_file
-    ], check=True)
+    profile_dir = f"/tmp/libreoffice_{uuid.uuid4().hex}"
 
-    pdf_file = os.path.join(
-        output_dir,
-        os.path.splitext(os.path.basename(word_file))[0] + ".pdf"
-    )
+    try:
+        result = subprocess.run(
+            [
+                "libreoffice",
+                "--headless",
+                f"-env:UserInstallation=file://{profile_dir}",
+                "--convert-to", "pdf",
+                "--outdir", output_dir,
+                word_file
+            ],
+            capture_output=True,
+            text=True,
+            check=False
+        )
 
-    return pdf_file
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"LibreOffice conversion failed.\n"
+                f"File: {word_file}\n"
+                f"STDOUT: {result.stdout}\n"
+                f"STDERR: {result.stderr}"
+            )
+
+        pdf_file = os.path.join(
+            output_dir,
+            os.path.splitext(os.path.basename(word_file))[0] + ".pdf"
+        )
+
+        if not os.path.exists(pdf_file):
+            raise RuntimeError(
+                f"LibreOffice completed but PDF was not created: {pdf_file}"
+            )
+
+        return pdf_file
+
+    finally:
+        # Remove temporary LibreOffice profile
+        shutil.rmtree(profile_dir, ignore_errors=True)
 
 def merge_mixed_files(output_path, file_list, target_width_pt=595):
     merger = PdfWriter()

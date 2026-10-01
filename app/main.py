@@ -2,6 +2,7 @@ import faulthandler
 faulthandler.enable()
 
 import os
+import uuid
 import json
 import qrcode
 import logging
@@ -424,16 +425,22 @@ def print_app_api():
                 document_type = ""
                 page_count = ""
                 extension = ""
-                if message_type=="document":
-                    extension = Path(content).suffix
-                    helper.download_file_to_disk(media_url,content)
-                    local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
-                else:
-                    parsed_url = urlparse(media_url)
-                    content = posixpath.basename(parsed_url.path)
-                    extension = os.path.splitext(content)[1]
-                    helper.download_file_to_disk(media_url,content)
-                    local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+                # if message_type=="document":
+                #     extension = Path(content).suffix
+                #     helper.download_file_to_disk(media_url,content)
+                #     local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+                # else:
+                #     parsed_url = urlparse(media_url)
+                #     content = posixpath.basename(parsed_url.path)
+                #     extension = os.path.splitext(content)[1]
+                #     helper.download_file_to_disk(media_url,content)
+                #     local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+                
+                parsed_url = urlparse(media_url)
+                content = posixpath.basename(parsed_url.path)
+                extension = os.path.splitext(content)[1]
+                helper.download_file_to_disk(media_url,content)
+                local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
                     
                 extension = extension.lower()
                 
@@ -528,7 +535,7 @@ def print_app_api():
                 output = {"response":""}
                 return jsonify(output)
             except Exception as e:
-                logger.error("print_app_api failed")
+                logger.error("print_app_api failed %s", e)
                 output = {"response":"print app api failed"}
                 return jsonify(output)
             finally:
@@ -540,4 +547,4 @@ def print_app_api():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5006,debug=True)
+    app.run(host="0.0.0.0", port=5007,debug=True)
