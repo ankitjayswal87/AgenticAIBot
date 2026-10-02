@@ -464,7 +464,7 @@ def print_app_api():
                         logger.info("PAGE COUNT WORD->PDF %s",page_count)
                         logger.info("CONVERTED-PDF-FileName: %s", content)
                         local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
-                elif extension==".pptx":
+                elif extension==".pptx" or extension==".ppt":
                     document_type = "powerpoint"
                     is_ppt = helper.is_valid_ppt(doc_file_path)
                     if is_ppt:
