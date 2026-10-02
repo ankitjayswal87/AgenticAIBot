@@ -11,6 +11,7 @@ import os
 import shutil
 import uuid
 from PyPDF2 import PdfWriter
+from pptx import Presentation
 
 def is_valid_pdf(file_path):
     try:
@@ -74,6 +75,29 @@ def get_image_page_count(file_path):
     except Exception as e:
         return f"Error: {e}"
     
+def get_pptx_slide_count(file_path):
+    """
+    Returns the total number of slides (page count) in a .pptx file.
+
+    :param file_path: Path to the .pptx file
+    :return: Integer count of slides, or 0 if file is invalid/empty
+    """
+    if not os.path.exists(file_path):
+        print(f"Error: File not found at {file_path}")
+        return 0
+
+    try:
+        # Load the presentation metadata and structure
+        prs = Presentation(file_path)
+
+        # Access the slides collection length
+        slide_count = len(prs.slides)
+        return slide_count
+
+    except Exception as e:
+        print(f"Error reading slide count from {file_path}: {e}")
+        return 0
+    
 def is_valid_xlsx(file_path):
     try:
         # read_only=True speeds up validation by avoiding loading all data into memory
@@ -84,6 +108,26 @@ def is_valid_xlsx(file_path):
         return True
     except Exception:
         return False
+    
+def is_valid_ppt(file_path):
+    """
+    Validates if a file is a genuine, uncorrupted PowerPoint presentation (.pptx or .ppt).
+
+    :param file_path: Path to the file to validate
+    :return: True if valid, False otherwise
+    """
+
+    # 4. Layer 3: Structural Integrity check (For PPTX)
+    # This verifies that the file is not corrupted internally
+    try:
+        # Attempt to open and parse the structural layout
+        Presentation(file_path)
+    except Exception as e:
+        print(f"Validation Failed: The .pptx file structure is broken or corrupted. Error: {e}")
+        return False
+
+    # All checks passed
+    return True
     
 def get_xlsx_sheet_count(file_path):
     try:
@@ -146,6 +190,61 @@ def word_to_pdf(word_file, output_dir):
         pdf_file = os.path.join(
             output_dir,
             os.path.splitext(os.path.basename(word_file))[0] + ".pdf"
+        )
+
+        if not os.path.exists(pdf_file):
+            raise RuntimeError(
+                f"LibreOffice completed but PDF was not created: {pdf_file}"
+            )
+
+        return pdf_file
+
+    finally:
+        # Remove temporary LibreOffice profile
+        shutil.rmtree(profile_dir, ignore_errors=True)
+        
+def powerpoint_to_pdf(input_file, output_dir):
+    """
+    Converts a .pptx file to .pdf using LibreOffice CLI.
+
+    :param input_file: Path to the input .pptx file
+    :param output_dir: Directory where the output PDF should be saved
+    :return: Path to the generated PDF
+    """
+
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    profile_dir = f"/tmp/libreoffice_{uuid.uuid4().hex}"
+
+    try:
+        result = subprocess.run(
+            [
+                "libreoffice",
+                "--headless",
+                f"-env:UserInstallation=file://{profile_dir}",
+                "--convert-to", "pdf",
+                "--outdir", output_dir,
+                input_file
+            ],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"LibreOffice conversion failed.\n"
+                f"File: {input_file}\n"
+                f"STDOUT: {result.stdout}\n"
+                f"STDERR: {result.stderr}"
+            )
+
+        pdf_file = os.path.join(
+            output_dir,
+            os.path.splitext(os.path.basename(input_file))[0] + ".pdf"
         )
 
         if not os.path.exists(pdf_file):

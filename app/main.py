@@ -464,6 +464,18 @@ def print_app_api():
                         logger.info("PAGE COUNT WORD->PDF %s",page_count)
                         logger.info("CONVERTED-PDF-FileName: %s", content)
                         local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+                elif extension==".pptx":
+                    document_type = "powerpoint"
+                    is_ppt = helper.is_valid_ppt(doc_file_path)
+                    if is_ppt:
+                        page_count = helper.get_pptx_slide_count(doc_file_path)
+                        logger.info("POWERPOINT-FileName: %s POWERPOINT-Pages: %s", content, page_count)
+                        pdf_file = helper.powerpoint_to_pdf(doc_file_path, constant.PRINT_DOCS_PATH)
+                        content = os.path.splitext(os.path.basename(doc_file_path))[0] + ".pdf"
+                        page_count = helper.get_pdf_page_count(f"{constant.PRINT_DOCS_PATH}{content}")
+                        logger.info("PAGE COUNT POWERPOINT->PDF %s",page_count)
+                        logger.info("CONVERTED-PDF-FileName: %s", content)
+                        local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
                 elif extension==".xlsx" or extension==".xls":
                     document_type = "xlsx"
                     is_xlsx = helper.is_valid_xlsx(doc_file_path)
@@ -475,7 +487,7 @@ def print_app_api():
                         # content = os.path.splitext(os.path.basename(doc_file_path))[0] + ".pdf"
                         # logger.info("CONVERTED-PDF-FileName: %s", content)
                         # local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
-                elif extension=="." or extension=="":
+                elif extension=="." or extension=="" or extension==".bin":
                     logger.info("Handling files with empty extesion")
                     is_pdf = helper.is_valid_pdf(doc_file_path)
                     if is_pdf:
@@ -491,6 +503,17 @@ def print_app_api():
                         content = os.path.splitext(os.path.basename(doc_file_path))[0] + ".pdf"
                         page_count = helper.get_pdf_page_count(f"{constant.PRINT_DOCS_PATH}{content}")
                         logger.info("PAGE COUNT WORD->PDF %s",page_count)
+                        logger.info("CONVERTED-PDF-FileName: %s", content)
+                        local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
+                    is_ppt = helper.is_valid_ppt(doc_file_path)
+                    if is_ppt:
+                        document_type = "powerpoint"
+                        page_count = helper.get_pptx_slide_count(doc_file_path)
+                        logger.info("POWERPOINT-FileName: %s POWERPOINT-Pages: %s", content, page_count)
+                        pdf_file = helper.powerpoint_to_pdf(doc_file_path, constant.PRINT_DOCS_PATH)
+                        content = os.path.splitext(os.path.basename(doc_file_path))[0] + ".pdf"
+                        page_count = helper.get_pdf_page_count(f"{constant.PRINT_DOCS_PATH}{content}")
+                        logger.info("PAGE COUNT POWERPOINT->PDF %s",page_count)
                         logger.info("CONVERTED-PDF-FileName: %s", content)
                         local_url = f"{constant.HTTP_SCHEMA}://{constant.SERVER_HOST}/PrintDocs/{content}"
                     is_xlsx = helper.is_valid_xlsx(doc_file_path)
@@ -547,4 +570,4 @@ def print_app_api():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5006,debug=True)
+    app.run(host="0.0.0.0", port=5007,debug=True)
